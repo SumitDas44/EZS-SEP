@@ -1,7 +1,59 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EZS_SEP.m
+%
+% Efficient Zonal Stable Election Protocol with SOM-Based node deployment (EZS-SEP)
+% MATLAB implementation for heterogeneous Wireless Sensor Networks (WSNs)
+%
+% Description:
+%   This program implements the proposed EZS-SEP routing protocol using
+%   Self-Organizing Map (SOM)-based node deployment and a multi-factor
+%   Cluster Head (CH) selection strategy. The protocol considers:
+%
+%       • Initial node energy
+%       • Residual node energy
+%       • Average network energy
+%       • Distance between nodes and the Base Station
+%
+%   Performance metrics include:
+%       • First Node Dies (FND)
+%       • Half Nodes Die (HND)
+%       • Last Node Dies (LND)
+%       • Number of Alive Nodes
+%       • Throughput (Packets to BS)
+%       • Residual Network Energy
+%
+% ------------------------------------------------------------------------
+% Authors:
+%   Sumit Das
+%   Md. Khorshed Alom 
+%
+% Affiliation:
+%   Khulna University of Engineering & Technology (KUET)
+%
+% Paper:
+%   "EZS-SEP: A Hybrid Efficient Zonal Stable Election Routing Protocol 
+%   with SOM-Based Node Deployment for Heterogeneous Wireless Sensor Networks"
+%
+% Citation:
+%   Please cite the associated publication if this code is used in
+%   academic research.
+%
+% Requirements:
+%   MATLAB R20XX or later
+%   Deep Learning Toolbox / Neural Network Toolbox
+%
+% License:
+%   MIT License
+%   Copyright (c) 2026 Sumit Das
+%   See the LICENSE file in this repository for full license terms.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 tic
 clear;
 
-% PARAMETERS
+%% ------------------------------------------------------------------------
+% Simulation Parameters
+% -------------------------------------------------------------------------
 xm = 100; ym = 100;
 sink.x = 0.5 * xm; sink.y = 0.5 * ym;
 Eo = 0.5;
@@ -27,7 +79,9 @@ figure(1); hold on;
 i = 1;
 normal_n = 50; intermediate_n = 30; advanced_n = 20;
 
-%% === ONE SOM FOR ALL ZONES ===
+%% ------------------------------------------------------------------------
+% SOM-Based Node Deployment
+% -------------------------------------------------------------------------
 input = rand(2, n);
 net = selforgmap([10 10]);
 net.trainParam.epochs = 300;
@@ -37,8 +91,6 @@ positions = net.IW{1};  % size: [100 x 2]
 % Shuffle to randomize zone assignments
 perm = randperm(n);
 
-%% === ASSIGN ZONES MANUALLY BASED ON INDEX ===
-
 for q = 1:n
     idx = perm(q);
     x = positions(idx,1);
@@ -46,10 +98,6 @@ for q = 1:n
 
     % Zone mapping
     if q <= normal_n
-        % Normal Zone: X 30–70, Y 30–70 (100,100)
-        % Normal Zone: X 45–105, Y 45–105 (150,150)
-        % Normal Zone: X 54–126, Y 54–126 (180,180)
-        % Normal Zone: X 60–140, Y 60–140 (200,200)
         x = x * 40 + 30;
         y = y * 40 + 30;
         S(i).E = Eo;
@@ -58,10 +106,6 @@ for q = 1:n
         plot(x, y, 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b');
         
     elseif q <= normal_n + intermediate_n
-        % Intermediate: Left (X: 0–30) or Right (X: 70–100), Y: 0–100
-        % Intermediate: Left (X: 0–45) or Right (X: 105–150), Y: 0–150
-        % Intermediate: Left (X: 0–54) or Right (X: 126–180), Y: 0–180
-        % Intermediate: Left (X: 0–60) or Right (X: 140–200), Y: 0–200
         if mod(q, 2) == 0
             x = x * 30;           % Left
         else
@@ -73,10 +117,6 @@ for q = 1:n
         S(i).type = 'I';
         plot(x, y, '*', 'Color', [1 0.65 0], 'MarkerSize', 7);
     else
-        % Advanced: Bottom (Y: 0–30) or Top (Y: 70–100), X: 30–70
-        % Advanced: Bottom (Y: 0–45) or Top (Y: 105–150), X: 45–105
-        % Advanced: Bottom (Y: 0-54) or Top (Y: 126–180), X: 54–126
-        % Advanced: Bottom (Y: 0–60) or Top (Y: 140–200), X: 60–140
         x = x * 40 + 30;
         if mod(q, 2) == 0
             y = y * 30;           % Bottom
@@ -135,6 +175,10 @@ Eavg_a = 0;
 Eavg_i = 0;
 Davg = 0;
 D_BS = 0;
+
+%% ------------------------------------------------------------------------
+% Main Simulation Loop
+% -------------------------------------------------------------------------
 
 for r=0:rmax
     r
@@ -426,6 +470,9 @@ STATISTICS.Energy_per_round(r+1)=avg*100;
 
 end
 
+%% ------------------------------------------------------------------------
+% Plot Simulation Results
+% -------------------------------------------------------------------------
 
 figure(6);
 r=0:rmax;
